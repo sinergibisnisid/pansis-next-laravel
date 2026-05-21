@@ -1,0 +1,8 @@
+<?php
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Tests\TestCase;
+
+uses(TestCase::class, LazilyRefreshDatabase::class)->in('Feature');
+uses(TestCase::class)->in('Unit');
