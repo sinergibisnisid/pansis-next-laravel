@@ -131,15 +131,27 @@
 
 @layer utilities {
   .glass {
+    @apply bg-white/60 backdrop-blur-xl border border-gray-200;
+  }
+  .dark .glass {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
   }
   .glass-card {
+    @apply bg-card/80 backdrop-blur-sm border border-border/40 rounded-xl;
+  }
+  .dark .glass-card {
     @apply bg-card/50 backdrop-blur-sm border border-border/40 rounded-xl;
   }
   .gradient-text {
+    @apply bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent;
+  }
+  .dark .gradient-text {
     @apply bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent;
   }
   .gradient-border {
+    @apply border border-transparent bg-gradient-to-r from-blue-500/10 to-cyan-500/10;
+  }
+  .dark .gradient-border {
     @apply border border-transparent bg-gradient-to-r from-blue-500/20 to-cyan-500/20;
   }
   .animate-glow {
