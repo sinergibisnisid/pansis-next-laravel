@@ -12,7 +12,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     <NextThemesProvider
       attribute="class"
       defaultTheme="light"
-      enableSystem
+      enableSystem={false}
+      storageKey="pansin-theme"
       disableTransitionOnChange={false}
     >
       {children}

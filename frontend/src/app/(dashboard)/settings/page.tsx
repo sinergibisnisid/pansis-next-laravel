@@ -1,12 +1,67 @@
 'use client';
 
 import { Settings, User, Shield, Palette, Database, Globe } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+function AppearanceSettings() {
+  const { theme, setTheme } = useTheme();
+  const [compactMode, setCompactMode] = useState(false);
+  const [animations, setAnimations] = useState(true);
+  const [realtimeIndicators, setRealtimeIndicators] = useState(true);
+
+  return (
+    <Card className="border-border/40 bg-card/50">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-medium flex items-center gap-2">
+          <Palette className="h-4 w-4 text-blue-400" />
+          Appearance
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Dark Mode</p>
+              <p className="text-xs text-muted-foreground">Use dark theme (recommended for monitoring)</p>
+            </div>
+            <Switch
+              checked={theme === 'dark'}
+              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Compact Mode</p>
+              <p className="text-xs text-muted-foreground">Reduce spacing for dense information display</p>
+            </div>
+            <Switch checked={compactMode} onCheckedChange={setCompactMode} />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Animations</p>
+              <p className="text-xs text-muted-foreground">Enable smooth transitions and animations</p>
+            </div>
+            <Switch checked={animations} onCheckedChange={setAnimations} />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Realtime Indicators</p>
+              <p className="text-xs text-muted-foreground">Show pulse animations for live data</p>
+            </div>
+            <Switch checked={realtimeIndicators} onCheckedChange={setRealtimeIndicators} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function SettingsPage() {
   return (
@@ -173,32 +228,7 @@ export default function SettingsPage() {
 
         {/* Appearance */}
         <TabsContent value="appearance" className="space-y-4">
-          <Card className="border-border/40 bg-card/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Palette className="h-4 w-4 text-blue-400" />
-                Appearance
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                {[
-                  { label: 'Dark Mode', desc: 'Use dark theme (recommended for monitoring)', checked: true },
-                  { label: 'Compact Mode', desc: 'Reduce spacing for dense information display', checked: false },
-                  { label: 'Animations', desc: 'Enable smooth transitions and animations', checked: true },
-                  { label: 'Realtime Indicators', desc: 'Show pulse animations for live data', checked: true },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">{item.label}</p>
-                      <p className="text-xs text-muted-foreground">{item.desc}</p>
-                    </div>
-                    <Switch defaultChecked={item.checked} />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <AppearanceSettings />
         </TabsContent>
       </Tabs>
     </div>
