@@ -43,7 +43,7 @@ export function Topbar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/40 bg-background/80 px-6 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border/40 bg-background/80 px-3 sm:px-4 lg:px-6 backdrop-blur-xl">
       {/* Left Section */}
       <div className="flex items-center gap-4">
         <Button
@@ -55,13 +55,20 @@ export function Topbar() {
           <Menu className="h-5 w-5" />
         </Button>
 
-        {/* Search */}
+        {/* Search - hidden on mobile, icon-only on tablet */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden h-9 w-9"
+        >
+          <Search className="h-4 w-4" />
+        </Button>
         <div className="hidden md:flex items-center gap-2 rounded-lg border border-border/40 bg-muted/30 px-3 py-1.5">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search branches, vaults, users..."
-            className="w-64 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="w-48 lg:w-64 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           <kbd className="hidden lg:inline-flex h-5 items-center gap-1 rounded border border-border/40 bg-muted/50 px-1.5 text-[10px] font-medium text-muted-foreground">
             Ctrl+K
@@ -70,7 +77,7 @@ export function Topbar() {
       </div>
 
       {/* Right Section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
         {/* Realtime Status */}
         <div className="hidden md:flex">
           <RealtimeIndicator status={status} />

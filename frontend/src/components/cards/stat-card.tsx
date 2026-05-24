@@ -50,22 +50,22 @@ export function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        'relative overflow-hidden rounded-xl border bg-gradient-to-br p-4 backdrop-blur-sm',
+        'relative overflow-hidden rounded-xl border bg-gradient-to-br p-3 sm:p-4 backdrop-blur-sm',
         variantStyles[variant],
         className
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
+          <p className="text-[10px] sm:text-xs font-medium uppercase tracking-wider text-muted-foreground truncate">
             {title}
           </p>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold tracking-tight">{value}</h3>
+          <div className="flex items-baseline gap-1 sm:gap-2">
+            <h3 className="text-lg sm:text-2xl font-bold tracking-tight truncate">{value}</h3>
             {trend && (
               <span
                 className={cn(
-                  'text-xs font-medium',
+                  'text-[10px] sm:text-xs font-medium shrink-0',
                   trend.isPositive ? 'text-emerald-400' : 'text-red-400'
                 )}
               >
@@ -74,20 +74,20 @@ export function StatCard({
             )}
           </div>
           {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate hidden sm:block">{subtitle}</p>
           )}
         </div>
-        <div className={cn('rounded-lg p-2.5', iconVariantStyles[variant])}>
+        <div className={cn('rounded-lg p-2 sm:p-2.5 shrink-0', iconVariantStyles[variant])}>
           {pulse ? (
             <div className="relative">
-              <Icon className="h-5 w-5" />
-              <span className="absolute -right-1 -top-1 h-2.5 w-2.5">
+              <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="absolute -right-1 -top-1 h-2 w-2 sm:h-2.5 sm:w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-current" />
+                <span className="relative inline-flex h-full w-full rounded-full bg-current" />
               </span>
             </div>
           ) : (
-            <Icon className="h-5 w-5" />
+            <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
           )}
         </div>
       </div>

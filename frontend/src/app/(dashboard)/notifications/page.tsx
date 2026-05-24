@@ -39,16 +39,16 @@ export default function NotificationsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Notifications</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Configure notification channels and preferences
           </p>
         </div>
-        <Button className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
+        <Button size="sm" className="gap-2 shrink-0 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
           <Save className="h-4 w-4" />
-          Save Changes
+          <span className="hidden sm:inline">Save Changes</span>
         </Button>
       </div>
 

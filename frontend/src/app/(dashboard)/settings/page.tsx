@@ -68,29 +68,29 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Settings</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
           System configuration and preferences
         </p>
       </div>
 
-      <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="bg-muted/30 border border-border/40">
-          <TabsTrigger value="general" className="gap-2 text-xs">
-            <Settings className="h-3.5 w-3.5" />
-            General
+      <Tabs defaultValue="general" className="space-y-4 sm:space-y-6">
+        <TabsList className="bg-muted/30 border border-border/40 w-full sm:w-auto grid grid-cols-4 sm:flex">
+          <TabsTrigger value="general" className="gap-1.5 sm:gap-2 text-[10px] sm:text-xs px-2 sm:px-3">
+            <Settings className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="hidden sm:inline">General</span>
           </TabsTrigger>
-          <TabsTrigger value="profile" className="gap-2 text-xs">
-            <User className="h-3.5 w-3.5" />
-            Profile
+          <TabsTrigger value="profile" className="gap-1.5 sm:gap-2 text-[10px] sm:text-xs px-2 sm:px-3">
+            <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="hidden sm:inline">Profile</span>
           </TabsTrigger>
-          <TabsTrigger value="security" className="gap-2 text-xs">
-            <Shield className="h-3.5 w-3.5" />
-            Security
+          <TabsTrigger value="security" className="gap-1.5 sm:gap-2 text-[10px] sm:text-xs px-2 sm:px-3">
+            <Shield className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="hidden sm:inline">Security</span>
           </TabsTrigger>
-          <TabsTrigger value="appearance" className="gap-2 text-xs">
-            <Palette className="h-3.5 w-3.5" />
-            Appearance
+          <TabsTrigger value="appearance" className="gap-1.5 sm:gap-2 text-[10px] sm:text-xs px-2 sm:px-3">
+            <Palette className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="hidden sm:inline">Theme</span>
           </TabsTrigger>
         </TabsList>
 

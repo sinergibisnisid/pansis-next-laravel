@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Building2,
@@ -12,6 +12,8 @@ import {
   Clock,
   Thermometer,
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import {
   Select,
@@ -60,23 +62,38 @@ const vaultStatusConfig: Record<string, { label: string; color: string; bgColor:
   locked: { label: 'LOCKED', color: 'text-blue-400', bgColor: 'bg-blue-500/20 border-blue-500/30' },
 };
 
+const ITEMS_PER_PAGE = 8;
+
 export function LiveStreamGrid() {
   const [orgFilter, setOrgFilter] = useState('Semua Organisasi');
   const [branchHighlight, setBranchHighlight] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredStreams = mockStreams.filter((stream) => {
     if (orgFilter !== 'Semua Organisasi' && stream.organization !== orgFilter) return false;
     return true;
   });
 
+  const totalPages = Math.ceil(filteredStreams.length / ITEMS_PER_PAGE);
+  const paginatedStreams = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredStreams.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredStreams, currentPage]);
+
+  // Reset page when filter changes
+  const handleOrgFilter = (v: string | null) => {
+    setOrgFilter(v ?? 'Semua Organisasi');
+    setCurrentPage(1);
+  };
+
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Select value={orgFilter} onValueChange={(v) => setOrgFilter(v ?? 'Semua Organisasi')}>
-            <SelectTrigger className="w-[200px] bg-white/5 border-white/10 text-white text-xs">
-              <Building2 className="h-3.5 w-3.5 mr-2 text-slate-400" />
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+          <Select value={orgFilter} onValueChange={handleOrgFilter}>
+            <SelectTrigger className="w-full sm:w-[200px] bg-muted/50 border-border/60 text-xs">
+              <Building2 className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -87,8 +104,8 @@ export function LiveStreamGrid() {
           </Select>
 
           <Select value={branchHighlight ?? 'all'} onValueChange={(v) => setBranchHighlight(v === 'all' ? null : (v ?? null))}>
-            <SelectTrigger className="w-[180px] bg-white/5 border-white/10 text-white text-xs">
-              <Filter className="h-3.5 w-3.5 mr-2 text-slate-400" />
+            <SelectTrigger className="w-full sm:w-[180px] bg-muted/50 border-border/60 text-xs">
+              <Filter className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
               <SelectValue placeholder="Highlight Cabang" />
             </SelectTrigger>
             <SelectContent>
@@ -110,8 +127,8 @@ export function LiveStreamGrid() {
       </div>
 
       {/* Stream Grid */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredStreams.map((stream, index) => {
+      <div className="grid gap-2 sm:gap-3 grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {paginatedStreams.map((stream, index) => {
           const isHighlighted = branchHighlight === null || branchHighlight === stream.id;
           const statusCfg = vaultStatusConfig[stream.vaultStatus];
           const isAlarm = stream.vaultStatus === 'alarm';
@@ -127,9 +144,9 @@ export function LiveStreamGrid() {
                 isAlarm
                   ? 'border-red-500/40 shadow-lg shadow-red-500/10'
                   : isHighlighted
-                  ? 'border-white/10 hover:border-blue-500/30'
-                  : 'border-white/5',
-                'bg-white/[0.02]'
+                  ? 'border-border/60 hover:border-primary/30'
+                  : 'border-border/30',
+                'bg-card/50'
               )}
             >
               {/* Alarm Pulse */}
@@ -142,15 +159,15 @@ export function LiveStreamGrid() {
               )}
 
               {/* Video Area */}
-              <div className="relative h-36 bg-slate-900/80 flex items-center justify-center">
+              <div className="relative h-28 sm:h-36 bg-muted dark:bg-slate-900/80 flex items-center justify-center">
                 {stream.status === 'online' ? (
                   <>
                     {/* Simulated video feed background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-slate-800/50 to-slate-900/80" />
-                    <Video className="h-8 w-8 text-slate-700" />
+                    <Video className="h-8 w-8 text-muted-foreground/30" />
 
                     {/* LIVE indicator */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5 rounded bg-black/60 px-1.5 py-0.5">
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5 rounded bg-black/60 dark:bg-black/60 px-1.5 py-0.5">
                       <span className="relative flex h-1.5 w-1.5">
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
                         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -167,7 +184,7 @@ export function LiveStreamGrid() {
 
                     {/* Fullscreen */}
                     <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" className="h-6 w-6 text-white/60 hover:text-white bg-black/40">
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-white/60 hover:text-white bg-black/40 dark:bg-black/40">
                         <Maximize2 className="h-3 w-3" />
                       </Button>
                     </div>
@@ -185,8 +202,8 @@ export function LiveStreamGrid() {
                   </>
                 ) : (
                   <div className="flex flex-col items-center gap-1">
-                    <VideoOff className="h-6 w-6 text-slate-700" />
-                    <span className="text-[9px] text-slate-600 font-medium">OFFLINE</span>
+                    <VideoOff className="h-6 w-6 text-muted-foreground/40" />
+                    <span className="text-[9px] text-muted-foreground font-medium">OFFLINE</span>
                   </div>
                 )}
               </div>
@@ -196,19 +213,19 @@ export function LiveStreamGrid() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-medium leading-tight truncate">{stream.branchName}</p>
-                    <p className="text-[10px] text-slate-500">{stream.branchCode} &bull; {stream.organization}</p>
+                    <p className="text-[10px] text-muted-foreground">{stream.branchCode} &bull; {stream.organization}</p>
                   </div>
-                  <div className={cn('h-2 w-2 rounded-full', stream.status === 'online' ? 'bg-emerald-500' : 'bg-slate-600')} />
+                  <div className={cn('h-2 w-2 rounded-full', stream.status === 'online' ? 'bg-emerald-500' : 'bg-muted-foreground/40')} />
                 </div>
 
                 {/* Current User */}
                 {stream.currentUser && (
-                  <div className="flex items-center justify-between rounded bg-white/5 px-2 py-1">
+                  <div className="flex items-center justify-between rounded bg-muted/50 px-2 py-1">
                     <span className="flex items-center gap-1.5 text-[10px]">
-                      <User className="h-3 w-3 text-blue-400" />
+                      <User className="h-3 w-3 text-blue-500 dark:text-blue-400" />
                       {stream.currentUser}
                     </span>
-                    <span className="flex items-center gap-1 text-[10px] text-slate-400">
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                       <Clock className="h-2.5 w-2.5" />
                       {stream.duration}
                     </span>
@@ -217,7 +234,7 @@ export function LiveStreamGrid() {
 
                 {/* Temperature */}
                 {stream.temperature > 0 && (
-                  <div className="flex items-center gap-1 text-[10px] text-slate-500">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                     <Thermometer className="h-3 w-3" />
                     {stream.temperature}°C
                   </div>
@@ -227,6 +244,38 @@ export function LiveStreamGrid() {
           );
         })}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">
+            Menampilkan {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredStreams.length)} dari {filteredStreams.length} cabang
+          </p>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7 sm:h-8 sm:w-8 border-border/60"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
+            <span className="text-xs text-muted-foreground px-2">
+              {currentPage}/{totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7 sm:h-8 sm:w-8 border-border/60"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

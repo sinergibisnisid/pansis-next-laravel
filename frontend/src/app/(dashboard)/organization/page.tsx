@@ -93,16 +93,16 @@ export default function OrganizationPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Organization</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Organization</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Manage headquarters and branch offices
           </p>
         </div>
-        <Button className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
+        <Button size="sm" className="gap-2 shrink-0 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
           <Plus className="h-4 w-4" />
-          Add Branch
+          <span className="hidden sm:inline">Add Branch</span>
         </Button>
       </div>
 
@@ -110,24 +110,24 @@ export default function OrganizationPage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid gap-4 sm:grid-cols-3"
+        className="grid gap-2 sm:gap-4 grid-cols-3"
       >
-        <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-          <p className="text-xs text-muted-foreground">Total Organizations</p>
-          <p className="text-2xl font-bold mt-1">{mockOrganizations.length}</p>
+        <div className="rounded-xl border border-border/40 bg-card/50 p-3 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Total</p>
+          <p className="text-xl sm:text-2xl font-bold mt-1">{mockOrganizations.length}</p>
         </div>
-        <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-          <p className="text-xs text-muted-foreground">Active Branches</p>
-          <p className="text-2xl font-bold mt-1">{mockOrganizations.filter((o) => o.status === 'active').length}</p>
+        <div className="rounded-xl border border-border/40 bg-card/50 p-3 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Active</p>
+          <p className="text-xl sm:text-2xl font-bold mt-1">{mockOrganizations.filter((o) => o.status === 'active').length}</p>
         </div>
-        <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-          <p className="text-xs text-muted-foreground">Total Vaults</p>
-          <p className="text-2xl font-bold mt-1">{mockOrganizations.reduce((sum, o) => sum + o.totalVaults, 0)}</p>
+        <div className="rounded-xl border border-border/40 bg-card/50 p-3 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Vaults</p>
+          <p className="text-xl sm:text-2xl font-bold mt-1">{mockOrganizations.reduce((sum, o) => sum + o.totalVaults, 0)}</p>
         </div>
       </motion.div>
 
       {/* Search */}
-      <div className="relative max-w-sm">
+      <div className="relative w-full sm:max-w-sm">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Search organization..."

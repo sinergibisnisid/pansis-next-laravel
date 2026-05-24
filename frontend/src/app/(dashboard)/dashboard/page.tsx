@@ -63,8 +63,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
           Realtime monitoring overview - PANSIN ACCESS System
         </p>
       </div>
@@ -74,7 +74,7 @@ export default function DashboardPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ staggerChildren: 0.1 }}
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-3 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
       >
         <StatCard
           title="Total Branch"
@@ -139,7 +139,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Charts Row 1 */}
-      <div className="grid gap-6 lg:grid-cols-7">
+      <div className="grid gap-4 lg:gap-6 lg:grid-cols-7">
         <div className="lg:col-span-4">
           <ChartCard title="Branch Activity" subtitle="Vault access frequency per branch">
             <BranchActivityChart />
@@ -153,7 +153,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts Row 2 */}
-      <div className="grid gap-6 lg:grid-cols-7">
+      <div className="grid gap-4 lg:gap-6 lg:grid-cols-7">
         <div className="lg:col-span-4">
           <ChartCard title="Realtime Activity" subtitle="Events per hour (last 24h)">
             <RealtimeLineChart />

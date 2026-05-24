@@ -91,21 +91,21 @@ export default function DevicesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Device Management</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Device Management</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Monitor and manage all connected devices
           </p>
         </div>
-        <Button className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
+        <Button size="sm" className="gap-2 shrink-0 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
           <Plus className="h-4 w-4" />
-          Add Device
+          <span className="hidden sm:inline">Add Device</span>
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Devices" value={devices.length} icon={Cpu} variant="info" subtitle="Registered devices" />
         <StatCard title="Online" value={onlineCount} icon={Wifi} variant="success" pulse subtitle="Connected & active" />
         <StatCard title="Offline" value={offlineCount} icon={WifiOff} variant="danger" subtitle="Not responding" />

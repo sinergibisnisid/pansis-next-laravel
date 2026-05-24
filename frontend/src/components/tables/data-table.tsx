@@ -91,9 +91,9 @@ export function DataTable<TData, TValue>({
   return (
     <div className={cn('space-y-3', className)}>
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
         {searchKey && (
-          <div className="relative flex-1 max-w-sm">
+          <div className="relative flex-1 sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder={searchPlaceholder}
@@ -107,9 +107,9 @@ export function DataTable<TData, TValue>({
         )}
         {showColumnToggle && (
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 rounded-md border border-border/40 bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent transition-colors outline-none">
+            <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 rounded-md border border-border/40 bg-background px-3 py-1.5 text-xs sm:text-sm font-medium hover:bg-accent transition-colors outline-none self-end sm:self-auto">
               <SlidersHorizontal className="h-4 w-4" />
-              Columns
+              <span className="hidden sm:inline">Columns</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               {table
@@ -131,7 +131,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm overflow-hidden">
+      <div className="rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -177,54 +177,53 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination */}
       {showPagination && (
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
-            {Math.min(
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-[10px] sm:text-xs text-muted-foreground order-2 sm:order-1">
+            {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-{Math.min(
               (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
               table.getFilteredRowModel().rows.length
             )}{' '}
-            of {table.getFilteredRowModel().rows.length} entries
+            of {table.getFilteredRowModel().rows.length}
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 order-1 sm:order-2">
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 border-border/40"
+              className="h-7 w-7 sm:h-8 sm:w-8 border-border/40"
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
             >
-              <ChevronsLeft className="h-4 w-4" />
+              <ChevronsLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 border-border/40"
+              className="h-7 w-7 sm:h-8 sm:w-8 border-border/40"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
-            <span className="px-3 text-xs text-muted-foreground">
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+            <span className="px-2 sm:px-3 text-[10px] sm:text-xs text-muted-foreground">
+              {table.getState().pagination.pageIndex + 1}/{table.getPageCount()}
             </span>
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 border-border/40"
+              className="h-7 w-7 sm:h-8 sm:w-8 border-border/40"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 border-border/40"
+              className="h-7 w-7 sm:h-8 sm:w-8 border-border/40"
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}
             >
-              <ChevronsRight className="h-4 w-4" />
+              <ChevronsRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>

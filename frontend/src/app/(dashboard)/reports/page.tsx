@@ -118,34 +118,34 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Reports & Audit Log</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Reports & Audit Log</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             System audit trail and activity reports
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export PDF
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Download className="h-3.5 w-3.5" />
+            PDF
           </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export Excel
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Download className="h-3.5 w-3.5" />
+            Excel
           </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export CSV
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Download className="h-3.5 w-3.5" />
+            CSV
           </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v ?? 'all')}>
-          <SelectTrigger className="w-[160px] bg-background/50 border-border/40">
-            <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+          <SelectTrigger className="w-[140px] sm:w-[160px] bg-background/50 border-border/40 text-xs sm:text-sm">
+            <Filter className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -161,7 +161,7 @@ export default function ReportsPage() {
         </Select>
 
         <Select value={severityFilter} onValueChange={(v) => setSeverityFilter(v ?? 'all')}>
-          <SelectTrigger className="w-[140px] bg-background/50 border-border/40">
+          <SelectTrigger className="w-[120px] sm:w-[140px] bg-background/50 border-border/40 text-xs sm:text-sm">
             <SelectValue placeholder="Severity" />
           </SelectTrigger>
           <SelectContent>
@@ -172,9 +172,9 @@ export default function ReportsPage() {
           </SelectContent>
         </Select>
 
-        <Button variant="outline" size="sm" className="gap-2 border-border/40">
-          <Calendar className="h-4 w-4" />
-          Date Range
+        <Button variant="outline" size="sm" className="gap-1.5 border-border/40 text-xs">
+          <Calendar className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Date Range</span>
         </Button>
       </div>
 

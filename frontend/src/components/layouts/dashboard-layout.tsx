@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
@@ -15,6 +15,14 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isCollapsed } = useSidebarStore();
   const hydrated = useHydration();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Prevent layout shift during hydration
   const sidebarWidth = hydrated ? (isCollapsed ? 72 : 260) : 260;
@@ -27,7 +35,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main Content */}
       <motion.div
         initial={false}
-        animate={{ marginLeft: sidebarWidth }}
+        animate={{ marginLeft: isMobile ? 0 : sidebarWidth }}
         transition={{ duration: 0.2, ease: 'easeInOut' }}
         className="flex min-h-screen flex-col"
       >
@@ -35,7 +43,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <Topbar />
 
         {/* Page Content */}
-        <main className={cn('flex-1 p-6')}>
+        <main className="flex-1 p-3 sm:p-4 lg:p-6">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

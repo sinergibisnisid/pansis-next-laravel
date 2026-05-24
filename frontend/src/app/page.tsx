@@ -52,9 +52,9 @@ export default function LandingPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0a0e1a] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0e1a]/90 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex items-center justify-between px-4 py-3">
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -63,19 +63,19 @@ export default function LandingPage() {
             </div>
             <div>
               <h1 className="text-sm font-bold tracking-tight">{APP_NAME}</h1>
-              <p className="text-[10px] text-slate-400">Smart Vault Monitoring System</p>
+              <p className="text-[10px] text-muted-foreground">Smart Vault Monitoring System</p>
             </div>
           </div>
 
           {/* Tab Navigation */}
-          <div className="hidden sm:flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
+          <div className="hidden sm:flex items-center gap-1 rounded-lg border border-border/60 bg-muted/50 p-1">
             <button
               onClick={() => setActiveTab('livestream')}
               className={cn(
                 'flex items-center gap-2 rounded-md px-4 py-1.5 text-xs font-medium transition-all',
                 activeTab === 'livestream'
                   ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <Monitor className="h-3.5 w-3.5" />
@@ -87,7 +87,7 @@ export default function LandingPage() {
                 'flex items-center gap-2 rounded-md px-4 py-1.5 text-xs font-medium transition-all',
                 activeTab === 'utilization'
                   ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <BarChart3 className="h-3.5 w-3.5" />
@@ -99,7 +99,7 @@ export default function LandingPage() {
           <Button
             onClick={() => setShowLoginModal(true)}
             size="sm"
-            className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400"
+            className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white"
           >
             <LogIn className="h-3.5 w-3.5" />
             Login
@@ -113,8 +113,8 @@ export default function LandingPage() {
             className={cn(
               'flex-1 flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-all',
               activeTab === 'livestream'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400'
+                ? 'bg-primary/10 text-primary border border-primary/30'
+                : 'text-muted-foreground'
             )}
           >
             <Monitor className="h-3.5 w-3.5" />
@@ -125,8 +125,8 @@ export default function LandingPage() {
             className={cn(
               'flex-1 flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-all',
               activeTab === 'utilization'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400'
+                ? 'bg-primary/10 text-primary border border-primary/30'
+                : 'text-muted-foreground'
             )}
           >
             <BarChart3 className="h-3.5 w-3.5" />
@@ -141,16 +141,16 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-3 px-4">
+      <footer className="border-t border-border/40 py-3 px-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            <span className="text-[10px] text-slate-500">System Online</span>
+            <span className="text-[10px] text-muted-foreground">System Online</span>
           </div>
-          <span className="text-[10px] text-slate-600">
+          <span className="text-[10px] text-muted-foreground/70">
             {APP_NAME} v1.0 &copy; 2025 Bank BJB
           </span>
         </div>
@@ -219,11 +219,11 @@ function LoginModal({ onClose }: { onClose: () => void }) {
         transition={{ duration: 0.3 }}
         className="relative z-10 w-full max-w-md mx-4"
       >
-        <div className="rounded-2xl border border-white/10 bg-[#0f1629]/95 p-8 backdrop-blur-xl shadow-2xl shadow-blue-500/10">
+        <div className="rounded-2xl border border-border/60 bg-card/95 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
+            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -233,8 +233,8 @@ function LoginModal({ onClose }: { onClose: () => void }) {
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 shadow-lg shadow-blue-500/30">
               <Shield className="h-7 w-7 text-white" />
             </div>
-            <h2 className="text-xl font-bold text-white">Login Admin Panel</h2>
-            <p className="text-xs text-slate-400 mt-1">Masuk untuk mengakses dashboard monitoring</p>
+            <h2 className="text-xl font-bold">Login Admin Panel</h2>
+            <p className="text-xs text-muted-foreground mt-1">Masuk untuk mengakses dashboard monitoring</p>
           </div>
 
           {/* Error */}
@@ -242,7 +242,7 @@ function LoginModal({ onClose }: { onClose: () => void }) {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-xs text-red-400"
+              className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-xs text-red-500 dark:text-red-400"
             >
               {error}
             </motion.div>
@@ -251,32 +251,32 @@ function LoginModal({ onClose }: { onClose: () => void }) {
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-300">Username</label>
+              <label className="text-xs font-medium text-foreground/80">Username</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   {...register('username')}
                   placeholder="Masukkan username"
                   className={cn(
-                    'pl-10 bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-blue-500/50',
+                    'pl-10 bg-muted/30 border-border/60 focus:border-primary/50',
                     errors.username && 'border-red-500/50'
                   )}
                   disabled={isLoading}
                 />
               </div>
-              {errors.username && <p className="text-[10px] text-red-400">{errors.username.message}</p>}
+              {errors.username && <p className="text-[10px] text-red-500 dark:text-red-400">{errors.username.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-300">Password</label>
+              <label className="text-xs font-medium text-foreground/80">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Masukkan password"
                   className={cn(
-                    'pl-10 pr-10 bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-blue-500/50',
+                    'pl-10 pr-10 bg-muted/30 border-border/60 focus:border-primary/50',
                     errors.password && 'border-red-500/50'
                   )}
                   disabled={isLoading}
@@ -284,21 +284,21 @@ function LoginModal({ onClose }: { onClose: () => void }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {errors.password && <p className="text-[10px] text-red-400">{errors.password.message}</p>}
+              {errors.password && <p className="text-[10px] text-red-500 dark:text-red-400">{errors.password.message}</p>}
             </div>
 
             <div className="flex items-center gap-2">
               <Checkbox
                 id="remember"
                 {...register('rememberMe')}
-                className="border-white/20 data-[state=checked]:bg-blue-600"
+                className="border-border data-[state=checked]:bg-primary"
               />
-              <label htmlFor="remember" className="text-xs text-slate-400 cursor-pointer">
+              <label htmlFor="remember" className="text-xs text-muted-foreground cursor-pointer">
                 Ingat saya
               </label>
             </div>
@@ -319,7 +319,7 @@ function LoginModal({ onClose }: { onClose: () => void }) {
             </Button>
           </form>
 
-          <p className="mt-4 text-center text-[10px] text-slate-600">
+          <p className="mt-4 text-center text-[10px] text-muted-foreground/60">
             Dilindungi oleh sistem keamanan enterprise
           </p>
         </div>

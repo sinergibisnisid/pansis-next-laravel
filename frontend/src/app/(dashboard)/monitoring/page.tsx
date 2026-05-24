@@ -78,22 +78,22 @@ export default function MonitoringPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Live Monitoring</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Realtime vault status monitoring &bull; {filteredVaults.length} vaults
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Live Monitoring</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Realtime vault status &bull; {filteredVaults.length} vaults
           </p>
         </div>
-        <Button variant="outline" size="sm" className="gap-2" onClick={handleRefresh}>
+        <Button variant="outline" size="sm" className="gap-2 shrink-0" onClick={handleRefresh}>
           <RefreshCw className="h-4 w-4" />
-          Refresh
+          <span className="hidden sm:inline">Refresh</span>
         </Button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-3">
+        <div className="relative w-full sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search branch name or code..."
@@ -103,10 +103,10 @@ export default function MonitoringPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
-            <SelectTrigger className="w-[140px] bg-background/50 border-border/40">
-              <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+            <SelectTrigger className="w-[120px] sm:w-[140px] bg-background/50 border-border/40 text-xs sm:text-sm">
+              <Filter className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -120,7 +120,7 @@ export default function MonitoringPage() {
           </Select>
 
           <Select value={deviceFilter} onValueChange={(v) => setDeviceFilter(v ?? 'all')}>
-            <SelectTrigger className="w-[140px] bg-background/50 border-border/40">
+            <SelectTrigger className="w-[120px] sm:w-[140px] bg-background/50 border-border/40 text-xs sm:text-sm">
               <SelectValue placeholder="Device" />
             </SelectTrigger>
             <SelectContent>
@@ -131,22 +131,22 @@ export default function MonitoringPage() {
             </SelectContent>
           </Select>
 
-          <div className="flex items-center border border-border/40 rounded-lg overflow-hidden">
+          <div className="flex items-center border border-border/40 rounded-lg overflow-hidden ml-auto sm:ml-0">
             <Button
               variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
               size="icon"
-              className="h-9 w-9 rounded-none"
+              className="h-8 w-8 sm:h-9 sm:w-9 rounded-none"
               onClick={() => setViewMode('grid')}
             >
-              <Grid3X3 className="h-4 w-4" />
+              <Grid3X3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
             <Button
               variant={viewMode === 'list' ? 'secondary' : 'ghost'}
               size="icon"
-              className="h-9 w-9 rounded-none"
+              className="h-8 w-8 sm:h-9 sm:w-9 rounded-none"
               onClick={() => setViewMode('list')}
             >
-              <LayoutList className="h-4 w-4" />
+              <LayoutList className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function MonitoringPage() {
         layout
         className={
           viewMode === 'grid'
-            ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+            ? 'grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             : 'space-y-3'
         }
       >

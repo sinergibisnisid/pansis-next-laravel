@@ -102,36 +102,36 @@ export default function UsersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">User Management</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Manage users, roles, and permissions
           </p>
         </div>
-        <Button className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
+        <Button size="sm" className="gap-2 shrink-0 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400">
           <UserPlus className="h-4 w-4" />
-          Add User
+          <span className="hidden sm:inline">Add User</span>
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-          <p className="text-xs text-muted-foreground">Total Users</p>
-          <p className="text-2xl font-bold mt-1">{users.length}</p>
+      <div className="grid gap-2 sm:gap-4 grid-cols-2 sm:grid-cols-4">
+        <div className="rounded-xl border border-border/40 bg-card/50 p-3 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Total Users</p>
+          <p className="text-xl sm:text-2xl font-bold mt-1">{users.length}</p>
         </div>
-        <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-          <p className="text-xs text-muted-foreground">Active</p>
-          <p className="text-2xl font-bold mt-1 text-emerald-400">{users.filter((u) => u.status === 'active').length}</p>
+        <div className="rounded-xl border border-border/40 bg-card/50 p-3 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Active</p>
+          <p className="text-xl sm:text-2xl font-bold mt-1 text-emerald-400">{users.filter((u) => u.status === 'active').length}</p>
         </div>
-        <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-          <p className="text-xs text-muted-foreground">Operators</p>
-          <p className="text-2xl font-bold mt-1">{users.filter((u) => u.role === 'operator').length}</p>
+        <div className="rounded-xl border border-border/40 bg-card/50 p-3 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Operators</p>
+          <p className="text-xl sm:text-2xl font-bold mt-1">{users.filter((u) => u.role === 'operator').length}</p>
         </div>
-        <div className="rounded-xl border border-border/40 bg-card/50 p-4">
-          <p className="text-xs text-muted-foreground">Admins</p>
-          <p className="text-2xl font-bold mt-1">{users.filter((u) => u.role === 'admin' || u.role === 'super_admin').length}</p>
+        <div className="rounded-xl border border-border/40 bg-card/50 p-3 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Admins</p>
+          <p className="text-xl sm:text-2xl font-bold mt-1">{users.filter((u) => u.role === 'admin' || u.role === 'super_admin').length}</p>
         </div>
       </div>
 
