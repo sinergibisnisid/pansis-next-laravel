@@ -7,6 +7,7 @@ use App\Jobs\CheckSessionTimeoutsJob;
 use App\Jobs\CleanupOldDataJob;
 use App\Jobs\CollectServerMetricsJob;
 use App\Jobs\MaintenanceReminderJob;
+use App\Jobs\SyncOfflineEventsJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -29,6 +30,10 @@ class Kernel extends ConsoleKernel
         $schedule->job(new CollectServerMetricsJob())->everyFiveMinutes();
 
         $schedule->job(new CleanupOldDataJob())->dailyAt('02:00');
+
+        // P1-11: Drain the offline event buffer every minute. New batches uploaded
+        // by reconnecting controllers also dispatch this job inline.
+        $schedule->job(new SyncOfflineEventsJob())->everyMinute()->withoutOverlapping();
     }
 
     protected function commands(): void

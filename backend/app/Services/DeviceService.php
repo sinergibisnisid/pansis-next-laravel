@@ -80,6 +80,32 @@ class DeviceService
             'last_heartbeat_at' => now(),
         ]);
 
+        // Persist a full heartbeat record (incl. network + power telemetry) for history.
+        \App\Models\DeviceHeartbeat::create([
+            'device_id' => $dto->deviceId,
+            'status' => $dto->status,
+            'cpu_usage' => $dto->cpuUsage,
+            'memory_usage' => $dto->memoryUsage,
+            'temperature' => $dto->temperature,
+            'signal_strength' => $dto->signalStrength,
+            'uptime_seconds' => $dto->uptimeSeconds,
+            'firmware_version' => $dto->firmwareVersion,
+            'ip_address' => $dto->ipAddress,
+            'wan_status' => $dto->wanStatus,
+            'isp_provider' => $dto->ispProvider,
+            'vpn_connected' => $dto->vpnConnected,
+            'vpn_endpoint' => $dto->vpnEndpoint,
+            'ups_on_battery' => $dto->upsOnBattery,
+            'ups_battery_percent' => $dto->upsBatteryPercent,
+            'ups_runtime_minutes' => $dto->upsRuntimeMinutes,
+            'error_count' => $dto->errorCount,
+            'last_error' => $dto->lastError,
+            'recorded_at' => now(),
+        ]);
+
+        // Detect critical infrastructure conditions and notify operators.
+        $this->detectInfrastructureAlerts($device, $dto);
+
         // Detect status change from offline to online
         if ($previousStatus === DeviceStatus::Offline->value && $dto->status === DeviceStatus::Online->value) {
             \Illuminate\Support\Facades\Event::dispatch('device.online', ['device' => $device->fresh()]);
@@ -97,6 +123,45 @@ class DeviceService
         }
 
         return $device->fresh();
+    }
+
+    /**
+     * Notify operators when infrastructure conditions hit critical thresholds:
+     *   - WAN went offline / failover.
+     *   - VPN disconnected.
+     *   - UPS running on battery with low remaining runtime.
+     */
+    private function detectInfrastructureAlerts(Device $device, HeartbeatDTO $dto): void
+    {
+        if ($dto->wanStatus === 'offline') {
+            $this->notificationService->send(new \App\DTOs\Notification\SendNotificationDTO(
+                branchId: $device->branch_id,
+                channel: 'email',
+                type: 'alert',
+                title: "WAN Offline: {$device->name}",
+                body: "Branch internet uplink is offline. Local execution continues, cloud sync paused.",
+            ));
+        }
+
+        if ($dto->vpnConnected === false) {
+            $this->notificationService->send(new \App\DTOs\Notification\SendNotificationDTO(
+                branchId: $device->branch_id,
+                channel: 'email',
+                type: 'alert',
+                title: "VPN Disconnected: {$device->name}",
+                body: "VPN tunnel between branch controller and HQ is down.",
+            ));
+        }
+
+        if ($dto->upsOnBattery === true && ($dto->upsBatteryPercent ?? 100) <= 20) {
+            $this->notificationService->send(new \App\DTOs\Notification\SendNotificationDTO(
+                branchId: $device->branch_id,
+                channel: 'email',
+                type: 'alert',
+                title: "UPS Critical: {$device->name}",
+                body: "Mains power is out and UPS battery is at {$dto->upsBatteryPercent}% (~{$dto->upsRuntimeMinutes} min remaining).",
+            ));
+        }
     }
 
     public function getDeviceStatus(string $deviceId): array

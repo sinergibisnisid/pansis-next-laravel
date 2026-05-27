@@ -109,4 +109,22 @@ class Device extends Model
     {
         return $this->hasMany(MaintenancePlan::class);
     }
+
+    /**
+     * I/O channels of this device. Relevant only for Controller-type devices.
+     */
+    public function channels(): HasMany
+    {
+        return $this->hasMany(ControllerChannel::class);
+    }
+
+    public function inputChannels(): HasMany
+    {
+        return $this->channels()->where('direction', \App\Enums\ChannelDirection::Input->value);
+    }
+
+    public function outputChannels(): HasMany
+    {
+        return $this->channels()->where('direction', \App\Enums\ChannelDirection::Output->value);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\HeartbeatStatus;
+use App\Enums\WanStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,13 @@ class DeviceHeartbeat extends Model
         'uptime_seconds',
         'firmware_version',
         'ip_address',
+        'wan_status',
+        'isp_provider',
+        'vpn_connected',
+        'vpn_endpoint',
+        'ups_on_battery',
+        'ups_battery_percent',
+        'ups_runtime_minutes',
         'error_count',
         'last_error',
         'metadata',
@@ -36,6 +44,11 @@ class DeviceHeartbeat extends Model
 
     protected $casts = [
         'status' => HeartbeatStatus::class,
+        'wan_status' => WanStatus::class,
+        'vpn_connected' => 'boolean',
+        'ups_on_battery' => 'boolean',
+        'ups_battery_percent' => 'integer',
+        'ups_runtime_minutes' => 'integer',
         'recorded_at' => 'datetime',
         'metadata' => 'array',
     ];

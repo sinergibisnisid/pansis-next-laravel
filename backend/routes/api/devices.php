@@ -1,20 +1,40 @@
 <?php
 
 use App\Http\Controllers\Api\V1\DeviceController;
+use App\Http\Controllers\Api\V1\DeviceProvisioningController;
+use App\Http\Controllers\Api\V1\DeviceSyncController;
+use App\Http\Controllers\Api\V1\MqttAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
 
-    // Device heartbeat - authenticated via device token
-    Route::middleware('device-token-auth')->group(function () {
+    // ─── Device provisioning (P1-12) ─────────────────────────────────────────
+    // Public endpoint: device claims itself with a one-time code.
+    Route::post('/devices/provision/claim', [DeviceProvisioningController::class, 'claim'])
+        ->middleware('throttle:10,1');
+
+    // ─── EMQX broker auth/ACL hooks (P1-12) ──────────────────────────────────
+    // Called by EMQX, not by users. IP-allowlist via ip.whitelist middleware
+    // when IP_WHITELIST_ENABLED is on.
+    Route::post('/mqtt/auth', [MqttAuthController::class, 'authenticate'])
+        ->middleware('throttle:600,1');
+    Route::post('/mqtt/acl', [MqttAuthController::class, 'authorize'])
+        ->middleware('throttle:600,1');
+
+    // ─── Device → cloud (authenticated via X-Device-Token header) ────────────
+    Route::middleware('device.auth')->group(function () {
         Route::post('/devices/heartbeat', [DeviceController::class, 'heartbeat']);
+
+        // P1-11: Offline event buffer ingestion + stats.
+        Route::post('/devices/sync/events', [DeviceSyncController::class, 'ingest']);
+        Route::get('/devices/sync/stats', [DeviceSyncController::class, 'stats']);
     });
 
-    // Device registration (public for initial setup, secured by registration token)
+    // Public registration kept for backward compatibility with old controllers.
     Route::post('/devices/register', [DeviceController::class, 'register']);
 
-    // Protected device routes
-    Route::middleware(['auth:sanctum', 'ensure.active'])->group(function () {
+    // ─── Admin / operator routes (Sanctum + permissions) ────────────────────
+    Route::middleware(['auth:sanctum', 'active.user'])->group(function () {
         Route::apiResource('devices', DeviceController::class);
 
         Route::get('/devices/{device}/status', [DeviceController::class, 'status']);
@@ -23,5 +43,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/devices/{device}/heartbeats', [DeviceController::class, 'heartbeats']);
         Route::post('/devices/{device}/regenerate-token', [DeviceController::class, 'regenerateToken']);
         Route::patch('/devices/{device}/toggle-active', [DeviceController::class, 'toggleActive']);
+
+        // P1-12: Admin generates claim codes + rotates MQTT credentials.
+        Route::post('/devices/provision/codes', [DeviceProvisioningController::class, 'generateCode'])
+            ->middleware('permission:devices.register');
+        Route::post('/devices/{device}/rotate-mqtt', [DeviceProvisioningController::class, 'rotateMqtt'])
+            ->middleware('permission:devices.manage');
     });
 });
