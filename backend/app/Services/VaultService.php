@@ -2,21 +2,19 @@
 
 namespace App\Services;
 
-use App\DTOs\Vault\VaultAccessDTO;
 use App\DTOs\Vault\CloseVaultDTO;
+use App\DTOs\Vault\VaultAccessDTO;
 use App\Enums\AuditEvent;
+use App\Enums\CloseReason;
 use App\Enums\SessionStatus;
 use App\Enums\SnapshotTrigger;
 use App\Enums\VaultStatus;
-use App\Enums\AlarmType;
-use App\Enums\Severity;
-use App\Models\Vault;
 use App\Models\VaultSession;
+use App\Repositories\Contracts\DeviceRepositoryInterface;
+use App\Repositories\Contracts\FingerprintRepositoryInterface;
 use App\Repositories\Contracts\VaultRepositoryInterface;
 use App\Repositories\Contracts\VaultSessionRepositoryInterface;
 use App\Repositories\Contracts\WorkingTimeRepositoryInterface;
-use App\Repositories\Contracts\FingerprintRepositoryInterface;
-use App\Repositories\Contracts\DeviceRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
@@ -33,15 +31,27 @@ class VaultService
         private readonly SnapshotService $snapshotService,
         private readonly NotificationService $notificationService,
         private readonly WorkingTimeService $workingTimeService,
+        private readonly HardwareControlService $hardwareControlService,
     ) {}
 
+    /**
+     * Approve vault access (fingerprint validated, working hours OK, etc.) and
+     * release the magnetic lock so the user can open the door.
+     *
+     * NOTE per Pansin Access PDF: this does NOT start the occupancy timer.
+     * The occupancy timer starts only when the door sensor reports the door
+     * has actually opened — handled by VaultDoorService::handleDoorOpened().
+     *
+     * The session created here is in "active" state but with door_opened_at = null.
+     * The snapshot is also deferred to the door-open event.
+     */
     public function openVault(VaultAccessDTO $dto): array
     {
         return DB::transaction(function () use ($dto) {
             $vault = $this->vaultRepository->findOrFail($dto->vaultId);
             $user = \App\Models\User::findOrFail($dto->userId);
 
-            // Check if vault is already open
+            // Reject if vault already has an active session.
             $activeSession = $this->vaultSessionRepository->getActiveSessionByVault($dto->vaultId);
             if ($activeSession) {
                 throw ValidationException::withMessages([
@@ -49,7 +59,7 @@ class VaultService
                 ]);
             }
 
-            // Validate working time
+            // Working time check.
             if (!$this->workingTimeService->isWithinWorkingTime($vault->branch_id, $dto->vaultId)) {
                 $this->notificationService->sendUnauthorizedAccessAlert(
                     $dto->vaultId,
@@ -69,7 +79,7 @@ class VaultService
                 ]);
             }
 
-            // Validate fingerprint if access type is fingerprint
+            // Fingerprint validation.
             if ($dto->accessType === 'fingerprint') {
                 $isValid = $this->fingerprintRepository->validateFingerprint(
                     $dto->fingerprintDeviceId ?? '',
@@ -90,29 +100,28 @@ class VaultService
                 }
             }
 
-            // Open the vault
+            // Mark vault status as Unlocked (logical state — physical lock release happens via MQTT).
             $this->vaultRepository->updateStatus($dto->vaultId, VaultStatus::Unlocked->value);
 
-            // Create vault session
+            // Create vault session in Active state. door_opened_at remains null until
+            // the door sensor actually fires.
             $session = $this->vaultSessionRepository->create([
                 'vault_id' => $dto->vaultId,
                 'user_id' => $dto->userId,
                 'device_id' => $dto->deviceId,
-                'access_type' => $dto->accessType,
                 'status' => SessionStatus::Active->value,
                 'opened_at' => now(),
-                'confidence_score' => $dto->confidenceScore,
+                'max_duration_seconds' => ($vault->max_session_duration_minutes ?? 10) * 60,
             ]);
 
-            // Trigger snapshot
-            $this->snapshotService->captureSnapshot(
-                $dto->vaultId,
-                $dto->deviceId ?? '',
-                $dto->userId,
-                SnapshotTrigger::VaultOpen
+            // Issue the physical lock-release command via MQTT.
+            $this->hardwareControlService->releaseLock(
+                vaultId: $dto->vaultId,
+                userId: $dto->userId,
+                reason: 'access_granted',
             );
 
-            // Audit log
+            // Audit log.
             $this->auditService->log(
                 user: $user,
                 event: AuditEvent::AccessGranted,
@@ -124,7 +133,6 @@ class VaultService
                 ]
             );
 
-            // Dispatch event
             Event::dispatch('vault.opened', [
                 'vault' => $vault,
                 'session' => $session,
@@ -138,6 +146,11 @@ class VaultService
         });
     }
 
+    /**
+     * Close the vault session. This is for cases where closure is initiated
+     * from the dashboard / API (manual close, timeout). For closure via the
+     * physical exit-button + door-closed flow, see VaultDoorService.
+     */
     public function closeVault(CloseVaultDTO $dto): array
     {
         return DB::transaction(function () use ($dto) {
@@ -145,31 +158,33 @@ class VaultService
             $user = \App\Models\User::findOrFail($dto->userId);
             $session = $this->vaultSessionRepository->findOrFail($dto->sessionId);
 
-            // Calculate duration
-            $openedAt = $session->opened_at;
             $closedAt = now();
-            $durationSeconds = $closedAt->diffInSeconds($openedAt);
+            $startedAt = $session->door_opened_at ?? $session->opened_at;
+            $durationSeconds = $closedAt->diffInSeconds($startedAt);
 
-            // Close the session
             $this->vaultSessionRepository->closeSession($dto->sessionId, [
                 'status' => SessionStatus::Closed->value,
                 'closed_at' => $closedAt,
-                'close_reason' => $dto->closeReason,
+                'close_reason' => $dto->closeReason ?? CloseReason::Manual->value,
                 'duration_seconds' => $durationSeconds,
             ]);
 
-            // Update vault status
             $this->vaultRepository->updateStatus($dto->vaultId, VaultStatus::Locked->value);
 
-            // Trigger snapshot on close
-            $this->snapshotService->captureSnapshot(
-                $dto->vaultId,
-                $session->device_id ?? '',
-                $dto->userId,
-                SnapshotTrigger::VaultClose
+            // Re-engage the magnetic lock.
+            $this->hardwareControlService->engageLock(
+                vaultId: $dto->vaultId,
+                reason: 'session_closed',
             );
 
-            // Audit log
+            // Snapshot on close (uses VaultClose trigger, separate from DoorClose).
+            $this->snapshotService->captureSnapshot(
+                vaultId: $dto->vaultId,
+                deviceId: $session->device_id ?? '',
+                userId: $dto->userId,
+                trigger: SnapshotTrigger::VaultClose,
+            );
+
             $this->auditService->log(
                 user: $user,
                 event: AuditEvent::AccessGranted,
@@ -182,7 +197,6 @@ class VaultService
                 ]
             );
 
-            // Dispatch event
             Event::dispatch('vault.closed', [
                 'vault' => $vault,
                 'session' => $session->fresh(),
@@ -206,46 +220,71 @@ class VaultService
         return [
             'vault' => $vault,
             'status' => $vault->status,
+            'door_state' => $vault->door_state,
+            'lock_state' => $vault->lock_state,
+            'buzzer_state' => $vault->buzzer_state,
             'active_session' => $activeSession,
             'is_open' => $activeSession !== null,
         ];
     }
 
+    /**
+     * Check all active vault sessions for occupancy timeout.
+     *
+     * Per Pansin Access PDF "Occupancy Timer": when occupancy duration exceeds
+     * the configured threshold (default 10 minutes), activate the buzzer relay
+     * and raise an alarm. Occupancy is measured from door_opened_at, falling
+     * back to opened_at if the door event never fired (still treated as
+     * suspicious because the door should have opened by now).
+     */
     public function checkSessionTimeout(): void
     {
         $expiredSessions = $this->vaultSessionRepository->getExpiredSessions();
 
         foreach ($expiredSessions as $session) {
-            $this->vaultSessionRepository->closeSession($session->id, [
+            // Skip sessions that already triggered timeout alarm.
+            if ($session->timeout_alarm_triggered) {
+                continue;
+            }
+
+            $startedAt = $session->door_opened_at ?? $session->opened_at;
+            $durationSeconds = now()->diffInSeconds($startedAt);
+
+            $this->vaultSessionRepository->update($session->id, [
                 'status' => SessionStatus::Timeout->value,
-                'closed_at' => now(),
-                'close_reason' => 'session_timeout',
-                'duration_seconds' => now()->diffInSeconds($session->opened_at),
+                'timeout_alarm_triggered' => true,
+                'timeout_alarm_at' => now(),
+                'duration_seconds' => $durationSeconds,
             ]);
 
-            // Update vault status to alarm
             $this->vaultRepository->updateStatus($session->vault_id, VaultStatus::Alarm->value);
 
-            // Send alarm notification
+            // Activate the physical buzzer on the controller.
+            $this->hardwareControlService->activateBuzzer(
+                vaultId: $session->vault_id,
+                reason: 'occupancy_timeout',
+            );
+
+            // Snapshot for evidence.
+            $this->snapshotService->captureSnapshot(
+                vaultId: $session->vault_id,
+                deviceId: $session->device_id ?? '',
+                userId: $session->user_id,
+                trigger: SnapshotTrigger::Alarm,
+            );
+
+            // Notify configured recipients.
             $this->notificationService->sendUnauthorizedAccessAlert(
                 $session->vault_id,
                 $session->user_id,
-                'Session timeout - vault left open'
+                'Session timeout — vault left open beyond ' . ($session->max_duration_seconds ?? 600) . ' seconds'
             );
 
-            // Trigger snapshot
-            $this->snapshotService->captureSnapshot(
-                $session->vault_id,
-                $session->device_id ?? '',
-                $session->user_id,
-                SnapshotTrigger::Alarm
-            );
-
-            // Dispatch alarm event
             Event::dispatch('vault.alarm.triggered', [
                 'vault_id' => $session->vault_id,
                 'session' => $session,
                 'reason' => 'session_timeout',
+                'duration_seconds' => $durationSeconds,
             ]);
         }
     }

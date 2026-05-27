@@ -14,10 +14,10 @@ class SettingsController extends Controller
             'app_name' => config('app.name'),
             'timezone' => config('app.timezone'),
             'locale' => config('app.locale'),
-            'session_timeout_minutes' => config('pansis.session_timeout', 30),
-            'max_login_attempts' => config('pansis.max_login_attempts', 5),
-            'lockout_duration_minutes' => config('pansis.lockout_duration', 15),
-            'default_pagination' => config('pansis.default_pagination', 15),
+            'session_timeout_minutes' => config('pansin.session_timeout', 30),
+            'max_login_attempts' => config('pansin.max_login_attempts', 5),
+            'lockout_duration_minutes' => config('pansin.lockout_duration', 15),
+            'default_pagination' => config('pansin.default_pagination', 15),
         ];
 
         return $this->successResponse($settings, 'General settings retrieved');
@@ -36,7 +36,7 @@ class SettingsController extends Controller
         ]);
 
         foreach ($data as $key => $value) {
-            setting(["pansis.{$key}" => $value]);
+            setting(["pansin.{$key}" => $value]);
         }
 
         return $this->successResponse($data, 'General settings updated');
@@ -45,13 +45,13 @@ class SettingsController extends Controller
     public function notifications(): JsonResponse
     {
         $settings = [
-            'email_enabled' => config('pansis.notifications.email_enabled', true),
-            'sms_enabled' => config('pansis.notifications.sms_enabled', false),
-            'whatsapp_enabled' => config('pansis.notifications.whatsapp_enabled', false),
-            'push_enabled' => config('pansis.notifications.push_enabled', true),
-            'telegram_enabled' => config('pansis.notifications.telegram_enabled', false),
-            'alarm_notification_delay_seconds' => config('pansis.notifications.alarm_delay', 0),
-            'digest_frequency' => config('pansis.notifications.digest_frequency', 'daily'),
+            'email_enabled' => config('pansin.notifications.email_enabled', true),
+            'sms_enabled' => config('pansin.notifications.sms_enabled', false),
+            'whatsapp_enabled' => config('pansin.notifications.whatsapp_enabled', false),
+            'push_enabled' => config('pansin.notifications.push_enabled', true),
+            'telegram_enabled' => config('pansin.notifications.telegram_enabled', false),
+            'alarm_notification_delay_seconds' => config('pansin.notifications.alarm_delay', 0),
+            'digest_frequency' => config('pansin.notifications.digest_frequency', 'daily'),
         ];
 
         return $this->successResponse($settings, 'Notification settings retrieved');
@@ -70,7 +70,7 @@ class SettingsController extends Controller
         ]);
 
         foreach ($data as $key => $value) {
-            setting(["pansis.notifications.{$key}" => $value]);
+            setting(["pansin.notifications.{$key}" => $value]);
         }
 
         return $this->successResponse($data, 'Notification settings updated');
@@ -79,17 +79,17 @@ class SettingsController extends Controller
     public function security(): JsonResponse
     {
         $settings = [
-            'two_factor_enabled' => config('pansis.security.two_factor_enabled', true),
-            'two_factor_method' => config('pansis.security.two_factor_method', 'otp'),
-            'password_expiry_days' => config('pansis.security.password_expiry_days', 90),
-            'password_min_length' => config('pansis.security.password_min_length', 8),
-            'require_uppercase' => config('pansis.security.require_uppercase', true),
-            'require_lowercase' => config('pansis.security.require_lowercase', true),
-            'require_number' => config('pansis.security.require_number', true),
-            'require_symbol' => config('pansis.security.require_symbol', true),
-            'session_concurrent_limit' => config('pansis.security.session_concurrent_limit', 3),
-            'ip_whitelist_enabled' => config('pansis.security.ip_whitelist_enabled', false),
-            'ip_whitelist' => config('pansis.security.ip_whitelist', []),
+            'two_factor_enabled' => config('pansin.security.two_factor_enabled', true),
+            'two_factor_method' => config('pansin.security.two_factor_method', 'otp'),
+            'password_expiry_days' => config('pansin.security.password_expiry_days', 90),
+            'password_min_length' => config('pansin.security.password_min_length', 8),
+            'require_uppercase' => config('pansin.security.require_uppercase', true),
+            'require_lowercase' => config('pansin.security.require_lowercase', true),
+            'require_number' => config('pansin.security.require_number', true),
+            'require_symbol' => config('pansin.security.require_symbol', true),
+            'session_concurrent_limit' => config('pansin.security.session_concurrent_limit', 3),
+            'ip_whitelist_enabled' => config('pansin.security.ip_whitelist_enabled', false),
+            'ip_whitelist' => config('pansin.security.ip_whitelist', []),
         ];
 
         return $this->successResponse($settings, 'Security settings retrieved');
@@ -113,7 +113,7 @@ class SettingsController extends Controller
         ]);
 
         foreach ($data as $key => $value) {
-            setting(["pansis.security.{$key}" => $value]);
+            setting(["pansin.security.{$key}" => $value]);
         }
 
         return $this->successResponse($data, 'Security settings updated');

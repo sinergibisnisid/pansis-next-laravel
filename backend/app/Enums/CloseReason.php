@@ -4,10 +4,11 @@ namespace App\Enums;
 
 enum CloseReason: string
 {
-    case PushButton = 'push_button';
-    case Manual = 'manual';
-    case Timeout = 'timeout';
-    case Emergency = 'emergency';
+    case PushButton = 'push_button';     // Exit push button pressed inside vault
+    case DoorClosed = 'door_closed';     // Door sensor detected closure
+    case Manual = 'manual';              // Manually closed from dashboard
+    case Timeout = 'timeout';            // Closed due to occupancy timeout
+    case Emergency = 'emergency';        // Closed due to emergency button
 
     public static function values(): array
     {
@@ -17,10 +18,11 @@ enum CloseReason: string
     public function label(): string
     {
         return match ($this) {
-            self::PushButton => 'Push Button',
+            self::PushButton => 'Tombol Keluar',
+            self::DoorClosed => 'Sensor Pintu',
             self::Manual => 'Manual',
             self::Timeout => 'Timeout',
-            self::Emergency => 'Emergency',
+            self::Emergency => 'Darurat',
         };
     }
 }

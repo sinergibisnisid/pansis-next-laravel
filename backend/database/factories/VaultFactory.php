@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\BuzzerState;
+use App\Enums\DoorState;
+use App\Enums\LockState;
 use App\Enums\VaultStatus;
 use App\Enums\VaultType;
 use App\Models\Branch;
@@ -23,6 +26,10 @@ class VaultFactory extends Factory
             'code' => fake()->unique()->lexify('???-V###'),
             'type' => fake()->randomElement(VaultType::values()),
             'status' => VaultStatus::Locked,
+            'door_state' => DoorState::Closed,
+            'lock_state' => LockState::Engaged,
+            'buzzer_state' => BuzzerState::Off,
+            'door_state_changed_at' => null,
             'floor' => fake()->randomElement(['B1', 'GF', '1', '2']),
             'room' => fake()->randomElement(['Room A', 'Room B', 'Room C']),
             'max_session_duration_minutes' => 10,

@@ -15,6 +15,8 @@ class MqttService
         private readonly DeviceService $deviceService,
         private readonly SnapshotService $snapshotService,
         private readonly NotificationService $notificationService,
+        private readonly VaultDoorService $vaultDoorService,
+        private readonly HardwareControlService $hardwareControlService,
     ) {}
 
     public function publish(string $topic, array $payload, int $qos = 0): bool
@@ -87,9 +89,22 @@ class MqttService
 
         try {
             match (true) {
+                str_starts_with($topic, 'door/') && str_ends_with($topic, '/opened')
+                    => $this->processDoorOpened($data),
+                str_starts_with($topic, 'door/') && str_ends_with($topic, '/closed')
+                    => $this->processDoorClosed($data),
+                str_starts_with($topic, 'button/') && str_ends_with($topic, '/exit_pressed')
+                    => $this->processExitButton($data),
+                str_starts_with($topic, 'button/') && str_ends_with($topic, '/emergency')
+                    => $this->processEmergencyButton($data),
+                str_starts_with($topic, 'lock/') && str_ends_with($topic, '/state')
+                    => $this->processLockState($data),
+                str_starts_with($topic, 'buzzer/') && str_ends_with($topic, '/state')
+                    => $this->processBuzzerState($data),
                 str_starts_with($topic, 'vault/open') => $this->processVaultOpen($data),
                 str_starts_with($topic, 'vault/close') => $this->processVaultClose($data),
                 str_starts_with($topic, 'vault/alarm') => $this->processVaultAlarm($data),
+                str_starts_with($topic, 'vault/emergency') => $this->processEmergencyButton($data),
                 str_starts_with($topic, 'fingerprint/scan') => $this->processFingerprintScan($data),
                 str_starts_with($topic, 'device/heartbeat') => $this->processDeviceHeartbeat($data),
                 str_starts_with($topic, 'device/status') => $this->processDeviceStatus($data),
@@ -227,6 +242,91 @@ class MqttService
             'status' => $status,
             'payload' => $payload,
         ]);
+    }
+
+    /**
+     * Handle door/{vault_id}/opened MQTT topic.
+     * Per Pansin Access PDF: this is when the occupancy timer truly starts.
+     */
+    public function processDoorOpened(array $payload): void
+    {
+        $dto = \App\DTOs\Hardware\DoorSensorEventDTO::fromPayload(
+            array_merge($payload, ['state' => 'opened'])
+        );
+        $this->vaultDoorService->handleDoorOpened($dto);
+    }
+
+    /**
+     * Handle door/{vault_id}/closed MQTT topic.
+     */
+    public function processDoorClosed(array $payload): void
+    {
+        $dto = \App\DTOs\Hardware\DoorSensorEventDTO::fromPayload(
+            array_merge($payload, ['state' => 'closed'])
+        );
+        $this->vaultDoorService->handleDoorClosed($dto);
+    }
+
+    /**
+     * Handle button/{vault_id}/exit_pressed MQTT topic.
+     */
+    public function processExitButton(array $payload): void
+    {
+        $dto = \App\DTOs\Hardware\ButtonEventDTO::fromPayload(
+            $payload,
+            \App\Enums\ButtonType::Exit,
+        );
+        $this->vaultDoorService->handleExitButtonPressed($dto);
+    }
+
+    /**
+     * Handle button/{vault_id}/emergency or vault/emergency MQTT topic.
+     */
+    public function processEmergencyButton(array $payload): void
+    {
+        $dto = \App\DTOs\Hardware\ButtonEventDTO::fromPayload(
+            $payload,
+            \App\Enums\ButtonType::Emergency,
+        );
+        $this->vaultDoorService->handleEmergencyButtonPressed($dto);
+    }
+
+    /**
+     * Handle lock/{vault_id}/state MQTT topic — controller reports current relay state.
+     */
+    public function processLockState(array $payload): void
+    {
+        if (!isset($payload['vault_id'], $payload['state'])) {
+            Log::warning('Invalid lock state payload', $payload);
+            return;
+        }
+
+        $state = \App\Enums\LockState::tryFrom($payload['state']);
+        if (!$state) {
+            Log::warning('Unknown lock state', $payload);
+            return;
+        }
+
+        $this->hardwareControlService->syncLockState($payload['vault_id'], $state);
+    }
+
+    /**
+     * Handle buzzer/{vault_id}/state MQTT topic — controller reports current relay state.
+     */
+    public function processBuzzerState(array $payload): void
+    {
+        if (!isset($payload['vault_id'], $payload['state'])) {
+            Log::warning('Invalid buzzer state payload', $payload);
+            return;
+        }
+
+        $state = \App\Enums\BuzzerState::tryFrom($payload['state']);
+        if (!$state) {
+            Log::warning('Unknown buzzer state', $payload);
+            return;
+        }
+
+        $this->hardwareControlService->syncBuzzerState($payload['vault_id'], $state);
     }
 
     public function logMessage(

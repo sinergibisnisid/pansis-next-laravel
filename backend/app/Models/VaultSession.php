@@ -24,6 +24,10 @@ class VaultSession extends Model
         'user_id',
         'device_id',
         'opened_at',
+        'door_opened_at',
+        'door_closed_at',
+        'exit_button_pressed_at',
+        'emergency_button_pressed_at',
         'closed_at',
         'duration_seconds',
         'max_duration_seconds',
@@ -36,6 +40,10 @@ class VaultSession extends Model
 
     protected $casts = [
         'opened_at' => 'datetime',
+        'door_opened_at' => 'datetime',
+        'door_closed_at' => 'datetime',
+        'exit_button_pressed_at' => 'datetime',
+        'emergency_button_pressed_at' => 'datetime',
         'closed_at' => 'datetime',
         'status' => SessionStatus::class,
         'timeout_alarm_triggered' => 'boolean',
@@ -59,12 +67,46 @@ class VaultSession extends Model
         return $this->belongsTo(Device::class);
     }
 
+    /**
+     * Whether the session has exceeded the maximum allowed occupancy duration.
+     * Computed against door_opened_at when available (true occupancy time),
+     * falling back to opened_at (session creation, fingerprint approval).
+     */
     public function isExpired(): bool
     {
-        if (is_null($this->max_duration_seconds) || is_null($this->duration_seconds)) {
+        if (is_null($this->max_duration_seconds)) {
             return false;
         }
 
-        return $this->duration_seconds > $this->max_duration_seconds;
+        $startedAt = $this->door_opened_at ?? $this->opened_at;
+        if (is_null($startedAt)) {
+            return false;
+        }
+
+        $elapsedSeconds = now()->diffInSeconds($startedAt);
+
+        return $elapsedSeconds > $this->max_duration_seconds;
+    }
+
+    /**
+     * Seconds elapsed since the door physically opened (true occupancy duration).
+     * Falls back to opened_at (fingerprint approval time) if door event hasn't fired.
+     */
+    public function elapsedSeconds(): int
+    {
+        $startedAt = $this->door_opened_at ?? $this->opened_at;
+        if (is_null($startedAt)) {
+            return 0;
+        }
+
+        return (int) now()->diffInSeconds($startedAt);
+    }
+
+    /**
+     * Whether the door has actually been opened (door sensor confirmed).
+     */
+    public function isDoorOpen(): bool
+    {
+        return !is_null($this->door_opened_at) && is_null($this->door_closed_at);
     }
 }

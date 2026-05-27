@@ -45,13 +45,17 @@ class MqttSubscribeCommand extends Command
         $this->info('Connected to MQTT broker successfully.');
         Log::info('MQTT subscriber connected to broker');
 
-        $topics = config('mqtt.topics');
+        $topics = config('mqtt.subscribe_topics', array_values(config('mqtt.topics', [])));
         $qosConfig = config('mqtt.qos');
 
-        foreach ($topics as $key => $topic) {
+        foreach ($topics as $topic) {
             $qos = match (true) {
-                str_contains($key, 'alarm') || str_contains($key, 'emergency') => $qosConfig['alarm'] ?? 2,
-                str_contains($key, 'heartbeat') => $qosConfig['heartbeat'] ?? 0,
+                str_contains($topic, 'alarm') || str_contains($topic, 'emergency') => $qosConfig['alarm'] ?? 2,
+                str_contains($topic, 'button') => $qosConfig['button'] ?? 2,
+                str_contains($topic, 'lock') => $qosConfig['lock'] ?? 2,
+                str_contains($topic, 'door') => $qosConfig['door'] ?? 1,
+                str_contains($topic, 'buzzer') => $qosConfig['buzzer'] ?? 1,
+                str_contains($topic, 'heartbeat') => $qosConfig['heartbeat'] ?? 0,
                 default => $qosConfig['default'] ?? 1,
             };
 

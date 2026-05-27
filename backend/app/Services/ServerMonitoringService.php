@@ -201,45 +201,45 @@ class ServerMonitoringService
 
         $lines = [];
 
-        $lines[] = '# HELP pansis_cpu_usage_percent CPU usage percentage';
-        $lines[] = '# TYPE pansis_cpu_usage_percent gauge';
-        $lines[] = "pansis_cpu_usage_percent {$metrics->cpu_usage}";
+        $lines[] = '# HELP pansin_cpu_usage_percent CPU usage percentage';
+        $lines[] = '# TYPE pansin_cpu_usage_percent gauge';
+        $lines[] = "pansin_cpu_usage_percent {$metrics->cpu_usage}";
 
-        $lines[] = '# HELP pansis_memory_usage_percent Memory usage percentage';
-        $lines[] = '# TYPE pansis_memory_usage_percent gauge';
-        $lines[] = "pansis_memory_usage_percent {$metrics->memory_usage}";
+        $lines[] = '# HELP pansin_memory_usage_percent Memory usage percentage';
+        $lines[] = '# TYPE pansin_memory_usage_percent gauge';
+        $lines[] = "pansin_memory_usage_percent {$metrics->memory_usage}";
 
-        $lines[] = '# HELP pansis_memory_used_mb Memory used in MB';
-        $lines[] = '# TYPE pansis_memory_used_mb gauge';
-        $lines[] = "pansis_memory_used_mb " . ($metrics->memory_used_mb ?? 0);
+        $lines[] = '# HELP pansin_memory_used_mb Memory used in MB';
+        $lines[] = '# TYPE pansin_memory_used_mb gauge';
+        $lines[] = "pansin_memory_used_mb " . ($metrics->memory_used_mb ?? 0);
 
-        $lines[] = '# HELP pansis_disk_usage_percent Disk usage percentage';
-        $lines[] = '# TYPE pansis_disk_usage_percent gauge';
-        $lines[] = "pansis_disk_usage_percent " . ($metrics->disk_usage ?? 0);
+        $lines[] = '# HELP pansin_disk_usage_percent Disk usage percentage';
+        $lines[] = '# TYPE pansin_disk_usage_percent gauge';
+        $lines[] = "pansin_disk_usage_percent " . ($metrics->disk_usage ?? 0);
 
-        $lines[] = '# HELP pansis_queue_size Current queue size';
-        $lines[] = '# TYPE pansis_queue_size gauge';
-        $lines[] = "pansis_queue_size " . ($metrics->queue_size ?? 0);
+        $lines[] = '# HELP pansin_queue_size Current queue size';
+        $lines[] = '# TYPE pansin_queue_size gauge';
+        $lines[] = "pansin_queue_size " . ($metrics->queue_size ?? 0);
 
-        $lines[] = '# HELP pansis_queue_failed Failed jobs count';
-        $lines[] = '# TYPE pansis_queue_failed gauge';
-        $lines[] = "pansis_queue_failed " . ($metrics->queue_failed ?? 0);
+        $lines[] = '# HELP pansin_queue_failed Failed jobs count';
+        $lines[] = '# TYPE pansin_queue_failed gauge';
+        $lines[] = "pansin_queue_failed " . ($metrics->queue_failed ?? 0);
 
-        $lines[] = '# HELP pansis_websocket_connections Active websocket connections';
-        $lines[] = '# TYPE pansis_websocket_connections gauge';
-        $lines[] = "pansis_websocket_connections " . ($metrics->websocket_connections ?? 0);
+        $lines[] = '# HELP pansin_websocket_connections Active websocket connections';
+        $lines[] = '# TYPE pansin_websocket_connections gauge';
+        $lines[] = "pansin_websocket_connections " . ($metrics->websocket_connections ?? 0);
 
-        $lines[] = '# HELP pansis_mqtt_connected MQTT broker connection status';
-        $lines[] = '# TYPE pansis_mqtt_connected gauge';
-        $lines[] = "pansis_mqtt_connected " . ($metrics->mqtt_connected ? 1 : 0);
+        $lines[] = '# HELP pansin_mqtt_connected MQTT broker connection status';
+        $lines[] = '# TYPE pansin_mqtt_connected gauge';
+        $lines[] = "pansin_mqtt_connected " . ($metrics->mqtt_connected ? 1 : 0);
 
-        $lines[] = '# HELP pansis_active_streams Active livestream count';
-        $lines[] = '# TYPE pansis_active_streams gauge';
-        $lines[] = "pansis_active_streams " . ($metrics->active_streams ?? 0);
+        $lines[] = '# HELP pansin_active_streams Active livestream count';
+        $lines[] = '# TYPE pansin_active_streams gauge';
+        $lines[] = "pansin_active_streams " . ($metrics->active_streams ?? 0);
 
-        $lines[] = '# HELP pansis_uptime_seconds Server uptime in seconds';
-        $lines[] = '# TYPE pansis_uptime_seconds gauge';
-        $lines[] = "pansis_uptime_seconds " . ($metrics->uptime_seconds ?? 0);
+        $lines[] = '# HELP pansin_uptime_seconds Server uptime in seconds';
+        $lines[] = '# TYPE pansin_uptime_seconds gauge';
+        $lines[] = "pansin_uptime_seconds " . ($metrics->uptime_seconds ?? 0);
 
         return implode("\n", $lines) . "\n";
     }

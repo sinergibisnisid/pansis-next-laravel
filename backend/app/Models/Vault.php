@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\BuzzerState;
+use App\Enums\DoorState;
+use App\Enums\LockState;
 use App\Enums\VaultStatus;
 use App\Enums\VaultType;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -27,6 +30,10 @@ class Vault extends Model
         'code',
         'type',
         'status',
+        'door_state',
+        'lock_state',
+        'buzzer_state',
+        'door_state_changed_at',
         'floor',
         'room',
         'max_session_duration_minutes',
@@ -37,6 +44,10 @@ class Vault extends Model
     protected $casts = [
         'type' => VaultType::class,
         'status' => VaultStatus::class,
+        'door_state' => DoorState::class,
+        'lock_state' => LockState::class,
+        'buzzer_state' => BuzzerState::class,
+        'door_state_changed_at' => 'datetime',
         'is_active' => 'boolean',
         'metadata' => 'array',
     ];
