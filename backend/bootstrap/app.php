@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\CorrelationIdMiddleware;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SecureHeaders;
 use App\Http\Middleware\EnsureActiveUser;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->api(prepend: [
+            CorrelationIdMiddleware::class,
             ForceJsonResponse::class,
             SecureHeaders::class,
         ]);

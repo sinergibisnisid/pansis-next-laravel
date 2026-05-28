@@ -18,6 +18,10 @@ class Kernel extends ConsoleKernel
         Commands\MqttSubscribeCommand::class,
         Commands\MqttPublishCommand::class,
         Commands\CheckDeviceHealthCommand::class,
+        Commands\BackupRunCommand::class,
+        Commands\BackupCleanupCommand::class,
+        Commands\BackupRestoreCommand::class,
+        Commands\BackupListCommand::class,
     ];
 
     protected function schedule(Schedule $schedule): void
@@ -38,6 +42,22 @@ class Kernel extends ConsoleKernel
 
         // P2-23: Retry stale hardware commands (stuck in 'sent' past ack deadline).
         $schedule->job(new RetryStaleCommandsJob())->everyMinute()->withoutOverlapping();
+
+        // P3-30: Postgres backup + retention cleanup.
+        if (config('backup.schedule.enabled', true)) {
+            $schedule->command('backup:run')
+                ->cron(config('backup.schedule.cron', '0 2 * * *'))
+                ->withoutOverlapping()
+                ->onOneServer()
+                ->runInBackground()
+                ->name('backup-run');
+
+            $schedule->command('backup:cleanup')
+                ->cron(config('backup.schedule.cleanup_cron', '0 3 * * *'))
+                ->withoutOverlapping()
+                ->onOneServer()
+                ->name('backup-cleanup');
+        }
     }
 
     protected function commands(): void
