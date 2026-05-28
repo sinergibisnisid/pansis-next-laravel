@@ -127,4 +127,26 @@ class Device extends Model
     {
         return $this->channels()->where('direction', \App\Enums\ChannelDirection::Output->value);
     }
+
+    // Kredensial MQTT aktif
+    public function mqttCredential(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(DeviceMqttCredential::class)->where('is_active', true)->latest();
+    }
+
+    /**
+     * Router-specific spec (only populated for type=router devices).
+     */
+    public function routerSpec(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(RouterSpec::class);
+    }
+
+    /**
+     * UPS-specific spec (only populated for type=ups devices).
+     */
+    public function upsSpec(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(UpsSpec::class);
+    }
 }

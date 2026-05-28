@@ -30,6 +30,7 @@ class Vault extends Model
         'code',
         'type',
         'status',
+        'max_occupancy',
         'door_state',
         'lock_state',
         'buzzer_state',
@@ -44,6 +45,7 @@ class Vault extends Model
     protected $casts = [
         'type' => VaultType::class,
         'status' => VaultStatus::class,
+        'max_occupancy' => 'integer',
         'door_state' => DoorState::class,
         'lock_state' => LockState::class,
         'buzzer_state' => BuzzerState::class,
@@ -100,5 +102,29 @@ class Vault extends Model
     public function livestreamSessions(): HasMany
     {
         return $this->hasMany(LivestreamSession::class);
+    }
+
+    // Log occupancy vault ini
+    public function occupancyLogs(): HasMany
+    {
+        return $this->hasMany(VaultOccupancyLog::class);
+    }
+
+    // Session aktif (terbaru yang belum ditutup)
+    public function currentSession(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(VaultSession::class)->whereNull('closed_at')->latest('opened_at');
+    }
+
+    // Jumlah orang di dalam vault saat ini
+    public function currentOccupancyCount(): int
+    {
+        return $this->occupancyLogs()->whereNull('exited_at')->count();
+    }
+
+    // Apakah vault melebihi batas occupancy
+    public function isOverOccupancy(): bool
+    {
+        return $this->currentOccupancyCount() > ($this->max_occupancy ?? 1);
     }
 }

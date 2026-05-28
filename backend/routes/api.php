@@ -22,3 +22,4 @@ require __DIR__ . '/api/devices.php';
 require __DIR__ . '/api/reports.php';
 require __DIR__ . '/api/mqtt.php';
 require __DIR__ . '/api/settings.php';
+require __DIR__ . '/api/p2-monitoring.php';

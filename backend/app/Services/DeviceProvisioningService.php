@@ -275,6 +275,10 @@ class DeviceProvisioningService
                 "button/{$vaultScope}/emergency",
                 "lock/{$vaultScope}/state",
                 "buzzer/{$vaultScope}/state",
+                // P2-23: command ack topics — controller acks every lock/buzzer
+                // command it executes so the backend can mark it acknowledged.
+                "lock/{$vaultScope}/ack/+",
+                "buzzer/{$vaultScope}/ack/+",
                 "vault/{$vaultScope}/alarm",
                 "vault/{$vaultScope}/emergency",
                 "device/{$device->id}/heartbeat",

@@ -142,4 +142,105 @@ class DeviceProvisioningController extends Controller
             message: 'MQTT credentials rotated',
         );
     }
+
+    // List semua claim code (aktif, expired, terpakai)
+    public function listCodes(Request $request): JsonResponse
+    {
+        $query = \App\Models\DeviceClaimCode::query()
+            ->with(['branch', 'creator']);
+
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->input('branch_id'));
+        }
+
+        if ($request->has('status')) {
+            $status = $request->input('status');
+            if ($status === 'active') {
+                $query->whereNull('used_at')
+                    ->where('expires_at', '>', now());
+            } elseif ($status === 'used') {
+                $query->whereNotNull('used_at');
+            } elseif ($status === 'expired') {
+                $query->whereNull('used_at')
+                    ->where('expires_at', '<=', now());
+            }
+        }
+
+        $perPage = $request->integer('per_page', 15);
+        $codes = $query->orderByDesc('created_at')->paginate($perPage);
+
+        return $this->paginatedResponse($codes, 'Claim codes retrieved');
+    }
+
+    // Revoke claim code yang belum terpakai
+    public function revokeCode(string $codeId): JsonResponse
+    {
+        $code = \App\Models\DeviceClaimCode::findOrFail($codeId);
+
+        if ($code->used_at) {
+            return $this->errorResponse('Code has already been used', 422);
+        }
+
+        if ($code->isExpired()) {
+            return $this->errorResponse('Code has already expired', 422);
+        }
+
+        $code->update(['expires_at' => now()]);
+
+        return $this->successResponse($code->fresh(), 'Claim code revoked');
+    }
+
+    // List device yang sudah provisioned + status MQTT
+    public function listProvisioned(Request $request): JsonResponse
+    {
+        $query = \App\Models\Device::query()
+            ->whereNotNull('device_token')
+            ->with(['branch', 'vault', 'mqttCredential']);
+
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->input('branch_id'));
+        }
+
+        if ($request->has('type')) {
+            $query->where('type', $request->input('type'));
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $perPage = $request->integer('per_page', 15);
+        $devices = $query->orderByDesc('created_at')->paginate($perPage);
+
+        return $this->paginatedResponse($devices, 'Provisioned devices retrieved');
+    }
+
+    // Statistik provisioning
+    public function statistics(): JsonResponse
+    {
+        $totalCodes = \App\Models\DeviceClaimCode::count();
+        $activeCodes = \App\Models\DeviceClaimCode::whereNull('used_at')
+            ->where('expires_at', '>', now())
+            ->count();
+        $usedCodes = \App\Models\DeviceClaimCode::whereNotNull('used_at')->count();
+        $expiredCodes = \App\Models\DeviceClaimCode::whereNull('used_at')
+            ->where('expires_at', '<=', now())
+            ->count();
+
+        $totalProvisioned = \App\Models\Device::whereNotNull('device_token')->count();
+        $withMqtt = \App\Models\DeviceMqttCredential::where('is_active', true)->count();
+
+        return $this->successResponse([
+            'claim_codes' => [
+                'total' => $totalCodes,
+                'active' => $activeCodes,
+                'used' => $usedCodes,
+                'expired' => $expiredCodes,
+            ],
+            'devices' => [
+                'total_provisioned' => $totalProvisioned,
+                'with_active_mqtt' => $withMqtt,
+            ],
+        ], 'Provisioning statistics retrieved');
+    }
 }

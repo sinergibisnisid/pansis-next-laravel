@@ -49,5 +49,15 @@ Route::prefix('v1')->group(function () {
             ->middleware('permission:devices.register');
         Route::post('/devices/{device}/rotate-mqtt', [DeviceProvisioningController::class, 'rotateMqtt'])
             ->middleware('permission:devices.manage');
+
+        // P2-25: Device provisioning management.
+        Route::get('/devices/provision/codes', [DeviceProvisioningController::class, 'listCodes'])
+            ->middleware('permission:devices.manage');
+        Route::delete('/devices/provision/codes/{codeId}', [DeviceProvisioningController::class, 'revokeCode'])
+            ->middleware('permission:devices.manage');
+        Route::get('/devices/provision/provisioned', [DeviceProvisioningController::class, 'listProvisioned'])
+            ->middleware('permission:devices.manage');
+        Route::get('/devices/provision/statistics', [DeviceProvisioningController::class, 'statistics'])
+            ->middleware('permission:devices.manage');
     });
 });

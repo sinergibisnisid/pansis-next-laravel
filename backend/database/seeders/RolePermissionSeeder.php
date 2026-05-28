@@ -30,6 +30,8 @@ class RolePermissionSeeder extends Seeder
             'vaults.open',
             'vaults.close',
             'vaults.monitor',
+            // P2-23: hardware command queue (dispatch lock/buzzer commands)
+            'vaults.control',
 
             // Devices
             'devices.view',
@@ -123,6 +125,7 @@ class RolePermissionSeeder extends Seeder
             'vaults.open',
             'vaults.close',
             'vaults.monitor',
+            'vaults.control',
             'devices.view',
             'devices.create',
             'devices.update',
@@ -156,6 +159,7 @@ class RolePermissionSeeder extends Seeder
             'vaults.open',
             'vaults.close',
             'vaults.monitor',
+            'vaults.control',
             'devices.view',
             'alarms.view',
             'alarms.acknowledge',

@@ -29,6 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'ip.whitelist' => \App\Http\Middleware\IpWhitelist::class,
             'branch.access' => \App\Http\Middleware\CheckBranchAccess::class,
             'active.user' => EnsureActiveUser::class,
+            // Backwards-compatible alias used by existing route files.
+            'ensure.active' => EnsureActiveUser::class,
+            // Backwards-compatible alias used by existing route files.
+            'device-token-auth' => \App\Http\Middleware\DeviceTokenAuth::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,

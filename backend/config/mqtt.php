@@ -35,11 +35,13 @@ return [
         'lock_release' => 'lock/+/release',     // backend → device
         'lock_engage' => 'lock/+/engage',       // backend → device
         'lock_state' => 'lock/+/state',         // device → backend
+        'lock_ack' => 'lock/+/ack/+',           // device → backend (P2-23 command ack)
 
         // Buzzer relay (commands published by backend, state reported by device)
         'buzzer_activate' => 'buzzer/+/activate',     // backend → device
         'buzzer_deactivate' => 'buzzer/+/deactivate', // backend → device
         'buzzer_state' => 'buzzer/+/state',           // device → backend
+        'buzzer_ack' => 'buzzer/+/ack/+',             // device → backend (P2-23 command ack)
 
         // Fingerprint
         'fingerprint_scan' => 'fingerprint/+/scan',
@@ -67,7 +69,9 @@ return [
         'button/+/exit_pressed',
         'button/+/emergency',
         'lock/+/state',
+        'lock/+/ack/+',
         'buzzer/+/state',
+        'buzzer/+/ack/+',
         'fingerprint/+/scan',
         'fingerprint/+/register',
         'device/+/heartbeat',

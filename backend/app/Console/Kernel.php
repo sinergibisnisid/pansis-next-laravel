@@ -7,6 +7,7 @@ use App\Jobs\CheckSessionTimeoutsJob;
 use App\Jobs\CleanupOldDataJob;
 use App\Jobs\CollectServerMetricsJob;
 use App\Jobs\MaintenanceReminderJob;
+use App\Jobs\RetryStaleCommandsJob;
 use App\Jobs\SyncOfflineEventsJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -34,6 +35,9 @@ class Kernel extends ConsoleKernel
         // P1-11: Drain the offline event buffer every minute. New batches uploaded
         // by reconnecting controllers also dispatch this job inline.
         $schedule->job(new SyncOfflineEventsJob())->everyMinute()->withoutOverlapping();
+
+        // P2-23: Retry stale hardware commands (stuck in 'sent' past ack deadline).
+        $schedule->job(new RetryStaleCommandsJob())->everyMinute()->withoutOverlapping();
     }
 
     protected function commands(): void

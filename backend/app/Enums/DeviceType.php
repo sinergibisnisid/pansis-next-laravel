@@ -2,6 +2,18 @@
 
 namespace App\Enums;
 
+/**
+ * Physical device types in the Pansin Access platform.
+ *
+ * Per Pansin Access PDF "Komponen / Alat":
+ *   - Controller (Intelligence Controller — 4 in / 4 out)
+ *   - Fingerprint Scanner (TCP/IP biometric)
+ *   - IP Camera (RTSP / ONVIF)
+ *   - Door Sensor / Buzzer / Magnetic Lock (often wired into the controller,
+ *     but can also be standalone networked devices)
+ *   - Router PoE (VPN client + failover, branch network gateway)
+ *   - UPS (backup power, 2 jam minimum)
+ */
 enum DeviceType: string
 {
     case Controller = 'controller';
@@ -10,6 +22,8 @@ enum DeviceType: string
     case Sensor = 'sensor';
     case Buzzer = 'buzzer';
     case Lock = 'lock';
+    case Router = 'router';        // P2-17: Router PoE / branch gateway
+    case Ups = 'ups';              // P2-18: UPS / backup power source
 
     public static function values(): array
     {
@@ -19,12 +33,14 @@ enum DeviceType: string
     public function label(): string
     {
         return match ($this) {
-            self::Controller => 'Controller',
+            self::Controller => 'Intelligence Controller',
             self::FingerprintScanner => 'Fingerprint Scanner',
-            self::Camera => 'Camera',
+            self::Camera => 'IP Camera',
             self::Sensor => 'Sensor',
-            self::Buzzer => 'Buzzer',
-            self::Lock => 'Lock',
+            self::Buzzer => 'Alarm Buzzer',
+            self::Lock => 'Magnetic Lock',
+            self::Router => 'Router PoE',
+            self::Ups => 'UPS',
         };
     }
 }

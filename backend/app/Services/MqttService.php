@@ -17,6 +17,7 @@ class MqttService
         private readonly NotificationService $notificationService,
         private readonly VaultDoorService $vaultDoorService,
         private readonly HardwareControlService $hardwareControlService,
+        private readonly HardwareCommandService $hardwareCommandService,
     ) {}
 
     public function publish(string $topic, array $payload, int $qos = 0): bool
@@ -97,6 +98,10 @@ class MqttService
                     => $this->processExitButton($data),
                 str_starts_with($topic, 'button/') && str_ends_with($topic, '/emergency')
                     => $this->processEmergencyButton($data),
+                str_starts_with($topic, 'lock/') && str_contains($topic, '/ack/')
+                    => $this->processCommandAck($topic, $data),
+                str_starts_with($topic, 'buzzer/') && str_contains($topic, '/ack/')
+                    => $this->processCommandAck($topic, $data),
                 str_starts_with($topic, 'lock/') && str_ends_with($topic, '/state')
                     => $this->processLockState($data),
                 str_starts_with($topic, 'buzzer/') && str_ends_with($topic, '/state')
@@ -327,6 +332,28 @@ class MqttService
         }
 
         $this->hardwareControlService->syncBuzzerState($payload['vault_id'], $state);
+    }
+
+    /**
+     * Handle lock/{vault_id}/ack/{command_id} or buzzer/{vault_id}/ack/{command_id}.
+     * Controller acknowledges execution of a hardware command.
+     *
+     * Payload: { "status": "success" | "error", "error": "...optional..." }
+     */
+    public function processCommandAck(string $topic, array $payload): void
+    {
+        // Topic shape: "{lock|buzzer}/{vault_id}/ack/{command_id}"
+        $parts = explode('/', $topic);
+        if (count($parts) < 4) {
+            Log::warning('Malformed ack topic', ['topic' => $topic]);
+            return;
+        }
+
+        $commandId = $parts[3];
+        $status = $payload['status'] ?? 'error';
+        $error = $payload['error'] ?? null;
+
+        $this->hardwareCommandService->handleAck($commandId, $status, $error);
     }
 
     public function logMessage(
